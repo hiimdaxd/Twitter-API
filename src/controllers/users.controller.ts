@@ -14,7 +14,7 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
     const result = await usersServices.register(req.body)
     return res.status(200).json({
       message: 'Register successfully',
-      result: `ObjectID ('${result.insertedId}') has been added to database`
+      result
     })
   } catch (error) {
     return res.status(400).json({
