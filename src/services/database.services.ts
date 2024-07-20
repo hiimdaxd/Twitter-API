@@ -20,13 +20,13 @@ class DatabaseService {
       // Send a ping to confirm a successful connection
       await this.db.command({ ping: 1 })
       console.log('Pinged your deployment. You successfully connected to MongoDB!')
-    } finally {
-      // Ensures that the client will close when you finish/error
-      // await this.client.close()
+    } catch (error) {
+      console.log('DatabaseService Error: ', error)
+      throw error
     }
   }
 
-  get getUsers(): Collection<User> {
+  get getUsersCollection(): Collection<User> {
     return this.db.collection(process.env.DATABASE_USERS_COLLECTION as string)
   }
 }
