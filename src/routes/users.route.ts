@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { loginValidator, registerValidator } from '~/middlewares/users.middlewares'
 import { loginController, registerController } from '~/controllers/users.controller'
+import { requestHandleWrapper } from '~/utils/handler'
 
 const usersRouter = Router()
 
@@ -17,6 +18,6 @@ usersRouter.post('/login', loginValidator, loginController)
   password: string, 
   confirm_password: string }
 */
-usersRouter.post('/register', registerValidator, registerController)
+usersRouter.post('/register', registerValidator, requestHandleWrapper(registerController))
 
 export default usersRouter
