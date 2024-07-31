@@ -5,19 +5,7 @@ import { requestHandleWrapper } from '~/utils/handler'
 
 const usersRouter = Router()
 
-usersRouter.post('/login', loginValidator, loginController)
-
-/*
-- Description: Register a new user
-- Path: /register
-- Method: POST
-- Body: { 
-  name: string, 
-  email: string,
-  date_of_birth: string,
-  password: string, 
-  confirm_password: string }
-*/
+usersRouter.post('/login', loginValidator, requestHandleWrapper(loginController))
 usersRouter.post('/register', registerValidator, requestHandleWrapper(registerController))
 
 export default usersRouter

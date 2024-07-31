@@ -1,6 +1,7 @@
 import { Collection, Db, MongoClient } from 'mongodb'
 import { config } from 'dotenv'
 import User from '~/models/schemas/User.schema'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 
 config()
 
@@ -19,7 +20,7 @@ class DatabaseService {
     try {
       // Send a ping to confirm a successful connection
       await this.db.command({ ping: 1 })
-      console.log('Pinged your deployment. You successfully connected to MongoDB!')
+      console.log('Successfully connected to MongoDB!')
     } catch (error) {
       console.log('DatabaseService Error: ', error)
       throw error
@@ -28,6 +29,10 @@ class DatabaseService {
 
   get getUsersCollection(): Collection<User> {
     return this.db.collection(process.env.DATABASE_USERS_COLLECTION as string)
+  }
+
+  get getRefreshTokensCollection(): Collection<RefreshToken> {
+    return this.db.collection(process.env.DATABASE_REFRESH_TOKEN_COLLECTION as string)
   }
 }
 
