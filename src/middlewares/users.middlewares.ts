@@ -1,44 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
+import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/messages'
 import { ErrorWithStatus } from '~/models/Errors'
 import databaseService from '~/services/database.services'
 import usersServices from '~/services/users.services'
 import { hashPassword } from '~/utils/crypto'
+import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
-
-export const loginValidator = validate(
-  checkSchema({
-    email: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
-      },
-      isEmail: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-      },
-      trim: true,
-      custom: {
-        options: async (value, { req }) => {
-          const found = await databaseService.getUsersCollection.findOne({
-            email: value,
-            password: hashPassword(req.body.password)
-          })
-          if (found === null) {
-            throw new Error(USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT)
-          }
-          // Add user field into req and pass it to loginController
-          req.user = found
-          return true
-        }
-      }
-    },
-    password: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
-      }
-    }
-  })
-)
 
 export const registerValidator = validate(
   checkSchema({
@@ -124,5 +93,82 @@ export const registerValidator = validate(
         errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601
       }
     }
-  })
+  }),
+  ['body']
+)
+
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+      },
+      isEmail: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+      },
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          const found = await databaseService.getUsersCollection.findOne({
+            email: value,
+            password: hashPassword(req.body.password)
+          })
+          if (found === null) {
+            throw new Error(USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT)
+          }
+          // Add user field into req and pass it to loginController
+          req.user = found
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+      }
+    }
+  }),
+  ['body']
+)
+
+export const accessTokenValidator = validate(
+  checkSchema({
+    authorization: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED
+      },
+      custom: {
+        options: async (value: string, { req }) => {
+          const accessToken = value.split(' ')[1]
+          if (!accessToken) {
+            throw new ErrorWithStatus({
+              message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          // verify access token
+          const decodedAuthorization = await verifyToken({ token: accessToken })
+          req.decoded_authorization = decodedAuthorization
+          return true
+        }
+      }
+    }
+  }),
+  ['headers']
+)
+
+export const refreshTokenValidator = validate(
+  checkSchema({
+    refresh_token: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED
+      },
+      custom: {
+        options: async (value: string, { req }) => {
+          const decodedRefreshToken = await verifyToken({ token: value })
+        }
+      }
+    }
+  }),
+  ['body']
 )

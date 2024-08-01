@@ -6,7 +6,7 @@ import HTTP_STATUS from '~/constants/httpStatus'
 
 // can be reused by many routes
 // https://express-validator.github.io/docs/guides/manually-running
-export const validate = (validation: RunnableValidationChains<ValidationChain>) => {
+export const validate = (validation: RunnableValidationChains<ValidationChain>, p0: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // sequential processing, stops running validations chain if one fails.
     await validation.run(req)

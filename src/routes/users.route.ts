@@ -7,5 +7,6 @@ const usersRouter = Router()
 
 usersRouter.post('/login', loginValidator, requestHandleWrapper(loginController))
 usersRouter.post('/register', registerValidator, requestHandleWrapper(registerController))
+// usersRouter.post('/logout', logoutValidator, requestHandleWrapper(logoutController))
 
 export default usersRouter
